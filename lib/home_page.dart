@@ -13,8 +13,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // reference hive box
-  final _myBox = Hive.openBox('mybox');
+  final _myBox = Hive.box('mybox');
   ToDotaBase db = ToDotaBase();
+
+  @override
+  void initState() {
+    // If this is the first time opening the app , then create default data
+    if (_myBox.get("TODOLIST") == null) {
+      db.createInitialData();
+    } else {
+      //there already exists data
+      db.loadData();
+    }
+
+    super.initState();
+  }
 
   //  text controller
   final _controller = TextEditingController();
@@ -24,6 +37,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       db.toDoList[index][1] = !db.toDoList[index][1];
     });
+    db.updateDataBase();
   }
 
 //save new task
@@ -33,6 +47,7 @@ class _HomePageState extends State<HomePage> {
       _controller.clear();
     });
     Navigator.of(context).pop();
+    db.updateDataBase();
   }
 
 //create new task
@@ -54,6 +69,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       db.toDoList.removeAt(index);
     });
+    db.updateDataBase();
   }
 
   @override
